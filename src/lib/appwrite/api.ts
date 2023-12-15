@@ -2,6 +2,7 @@ import { ID } from "appwrite";
 import { INewUser } from "@/types";
 import { account, appwriteConfig, avatars, databases } from "./config";
 import { error } from "console";
+import { Query } from "appwrite";
 
 export async function createUserAccount(user: INewUser) {
     try {
@@ -37,7 +38,7 @@ export async function saveUserToDB(user: {
     name: string;
     imageUrl: URL;
     username?: string;
-}) { 
+}) {
 
     try {
         const newUser = await databases.createDocument(
@@ -54,13 +55,45 @@ export async function saveUserToDB(user: {
 
 }
 
-export async function signInAccount(user : {email: string; password: string;})
+export async function signInAccount(user: { email: string; password: string; }) {
+    try {
+
+        const session = await account.createEmailSession(user.email, user.password)
+
+        return session;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function getCurrentUser() {
+
+    try {
+        const currentAccount = await account.get();
+
+        if (!currentAccount) throw Error;
+
+        const currentUser = await databases.listDocuments(appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            [Query.equal('accountId',currentAccount.$id)]
+        )
+        
+        if (!currentUser) throw Error;
+
+        return currentUser.documents[0];
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function signOutAccount()
 {
     try {
+
+        const session = await account.deleteSession("current");
+        return session
         
-        const session = await account.createEmailSession(user.email,user.password)
-        
-        return session;
     } catch (error) {
         console.log(error)
     }

@@ -2,6 +2,7 @@ import { useUserContext } from '@/context/AuthContext'
 import { formatRelativeTime, multiFormatDateString } from '@/lib/utils'
 import { Models } from 'appwrite'
 import { Link } from 'react-router-dom'
+import PostStatus from './PostStatus'
 
 type PostCardProps = {
     post: Models.document
@@ -11,6 +12,8 @@ type PostCardProps = {
 const PostCard = ({ post }: PostCardProps) => {
 
     const {user} = useUserContext();
+
+    console.log(post)
 
     if(!post.creator) return;
 
@@ -53,10 +56,25 @@ const PostCard = ({ post }: PostCardProps) => {
 
 
             <Link to={`/posts/${post.$id}`} >
-                <div className='small-medium'>
-
+                <div className='small-medium lg:base-medium py-5'>
+                    <p>{post.caption}</p>
+                    <ul className='flex gap-1 mt-2'>
+                        {post.tags.map((tag:string) => (
+                            <li key={tag} className='text-light-3'>
+                                #{tag}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
+
+                <img
+                src={post.imageUrl || '/assets/icons/profile-placeholder.svg'}
+                className='post-card_img'
+                alt='post image'
+                />
             </Link>
+
+            <PostStatus post={post} userId={user.id}/>
         </div>
     )
 }

@@ -168,3 +168,8 @@ export const useDeletePost = () => {
         }
     })
 }
+
+
+export const useGetPosts = () => {
+    
+}
